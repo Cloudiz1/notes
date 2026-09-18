@@ -1,3 +1,5 @@
+https://llvm.org/docs/MemorySSA.html
+
 provide an SSA based form for memory, complete with def-use and use-def chains. 
 memory SSA is intraprocedural, which means it is restricted to a single function or procedure at a time
 
