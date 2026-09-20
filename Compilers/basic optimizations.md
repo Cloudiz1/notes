@@ -74,3 +74,28 @@ We can also discuss a notion of optimizing the placement of procedures themselve
 Namely, "if $p$ calls $q$ and the distance from $p$ to $q$ is less than the size of the instruction cache, placement succeeds." We can take this one step further and optimize for weights (either profiled or estimated). The greedy algorithm consists of a priority queue sorted by weights!
 
 read the chapter notes of chapter 8 for further reading!
+
+### Frame pointer omission and stack frame omission
+Briefly, defintions:
+a frame pointer is a base reference for your stack frame, so, `rbp`.
+omitting a frame pointer emits the prologue and epilogue for setting up `rbp`, it does the following transformation:
+```asm
+foo:
+	push rbp
+	mov rbp, rsp
+	sub rsp, ... ; if you have local variables
+	
+	...
+	
+	leave
+	ret
+```
+into:
+```asm
+foo:
+	sub rsp, ... ; if you have local variables
+	ret
+```
+and we do things with reference to `rsp` instead. Not only does this remove 3 instructions, it also allows us to use `rbp` as a general purpose register for math again!
+
+omitting the `sub rsp, ...` is known as omitting the stack frame. Intuitively, this can be done if we don't use any local variables. However there is definitely more nuance to this. SystemV requires that functions are aligned to 16 bytes (this is good practice, following ABI or not). If you already need to decrement for local variables, ensure this decrement is aligned to 16 bytes, this will give you the alignment for free!
